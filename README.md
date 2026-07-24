@@ -6,10 +6,10 @@ Whether you're targeting new skill titles (Intermediate / Advanced / Expert) or 
 
 ---
 
-## ⚡ Live Demo
+## ⚡ Live Caluclator Link
 
 
-👉 **[Try the PIU Phoenix 2 Pumbility Calculator Live](https://everybodygot2know.github.io/PIU-Phoenix-2-Pumbility-Calculator/)**
+👉 **[PIU Phoenix 2 Pumbility Calculator (Updated July 2026)](https://everybodygot2know.github.io/PIU-Phoenix-2-Pumbility-Calculator/)**
 
 
 
