@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIU Phoenix 2 Pumbility Calculator v1.0 (Updated July 2027) </title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .calculator-card {
+            background-color: #1e1e1e;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            width: 320px;
+        }
+        h2 {
+            text-align: center;
+            color: #00e5ff;
+            margin-top: 0;
+            font-size: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #b0bec5;
+        }
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #333;
+            background-color: #2a2a2a;
+            color: #fff;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .or-divider {
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            margin: 5px 0;
+        }
+        .score-box {
+            margin-top: 20px;
+            background-color: #00e5ff;
+            color: #000;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .score-box h3 {
+            margin: 0;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+        .score-value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator-card">
+    <h2>PIU PHOENIX PUMBILITY</h2>
+
+    <div class="form-group">
+        <label for="mode">Mode</label>
+        <select id="mode" onchange="calculatePumbility()">
+            <option value="Single">Single</option>
+            <option value="Double" selected>Double</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="level">Level</label>
+        <select id="level" onchange="calculatePumbility()"></select>
+    </div>
+
+    <div class="form-group">
+        <label for="score">Exact Score (Optional)</label>
+        <input type="number" id="score" placeholder="e.g. 945000" oninput="calculatePumbility()">
+    </div>
+
+    <div class="or-divider">- OR SELECT RANK -</div>
+
+    <div class="form-group">
+        <label for="rank">Rank</label>
+        <select id="rank" onchange="calculatePumbility()"></select>
+    </div>
+
+    <div class="form-group">
+        <label for="plate">Plate</label>
+        <select id="plate" onchange="calculatePumbility()"></select>
+    </div>
+
+    <div class="score-box">
+        <h3>Pumbility Score</h3>
+        <div class="score-value" id="result">0.00</div>
+    </div>
+</div>
+
+<script>
+    // Data Tables from Excel Reference
+    const levels = {
+        "10": { Single: 166.5, Double: 162 },
+        "11": { Single: 171, Double: 166.5 },
+        "12": { Single: 175.5, Double: 171 },
+        "13": { Single: 180, Double: 175.5 },
+        "14": { Single: 184.5, Double: 180 },
+        "15": { Single: 189, Double: 184.5 },
+        "16": { Single: 193.5, Double: 189 },
+        "17": { Single: 198, Double: 193.5 },
+        "18": { Single: 202.5, Double: 198 },
+        "19": { Single: 207, Double: 202.5 },
+        "20": { Single: 211.5, Double: 207 },
+        "21": { Single: 216, Double: 211.5 },
+        "22": { Single: 220.5, Double: 216 },
+        "23": { Single: 225, Double: 220.5 },
+        "24": { Single: 234, Double: 225 },
+        "25": { Single: 243, Double: 234 },
+        "26": { Single: 252, Double: 243 },
+        "27": { Single: 0, Double: 252 },
+        "28": { Single: 0, Double: 261 },
+        "29": { Single: 0, Double: 270 },
+        "Co-Op": { Single: 0, Double: 72 }
+    };
+
+    const grades = [
+        { minScore: 0, rank: "F", Single: 0, Double: 0.5 },
+        { minScore: 500000, rank: "D", Single: 0.5, Double: 1 },
+        { minScore: 600000, rank: "C", Single: 1, Double: 1.5 },
+        { minScore: 700000, rank: "B", Single: 1.5, Double: 1.75 },
+        { minScore: 800000, rank: "A", Single: 1.9, Double: 2 },
+        { minScore: 900000, rank: "A+", Single: 2.15, Double: 2.25 },
+        { minScore: 920000, rank: "AA", Single: 2.3, Double: 2.35 },
+        { minScore: 940000, rank: "AA+", Single: 2.45, Double: 2.45 },
+        { minScore: 950000, rank: "AAA", Single: 2.55, Double: 2.55 },
+        { minScore: 960000, rank: "AAA+", Single: 2.65, Double: 2.65 },
+        { minScore: 970000, rank: "S", Single: 2.75, Double: 2.75 },
+        { minScore: 975000, rank: "S+", Single: 2.8, Double: 2.8 },
+        { minScore: 980000, rank: "SS", Single: 2.85, Double: 2.85 },
+        { minScore: 985000, rank: "SS+", Single: 2.9, Double: 2.9 },
+        { minScore: 990000, rank: "SSS", Single: 2.95, Double: 2.95 },
+        { minScore: 995000, rank: "SSS+", Single: 3, Double: 3 }
+    ];
+
+    const plates = {
+        "RG": { Single: 0, Double: 0 },
+        "FG": { Single: 0.01, Double: 0.01 },
+        "TG": { Single: 0.02, Double: 0.02 },
+        "MG": { Single: 0.03, Double: 0.03 },
+        "SG": { Single: 0.04, Double: 0.04 },
+        "EG": { Single: 0.07, Double: 0.06 },
+        "UG": { Single: 0.085, Double: 0.08 },
+        "PG": { Single: 0.1, Double: 0.1 }
+    };
+
+    // Populate Dropdown Menus
+    window.onload = function() {
+        const levelSelect = document.getElementById("level");
+        Object.keys(levels).forEach(lvl => {
+            let opt = document.createElement("option");
+            opt.value = lvl;
+            opt.innerText = lvl;
+            if(lvl === "18") opt.selected = true;
+            levelSelect.appendChild(opt);
+        });
+
+        const rankSelect = document.getElementById("rank");
+        grades.slice().reverse().forEach(g => {
+            let opt = document.createElement("option");
+            opt.value = g.rank;
+            opt.innerText = g.rank;
+            if(g.rank === "AA+") opt.selected = true;
+            rankSelect.appendChild(opt);
+        });
+
+        const plateSelect = document.getElementById("plate");
+        Object.keys(plates).forEach(p => {
+            let opt = document.createElement("option");
+            opt.value = p;
+            opt.innerText = p;
+            plateSelect.appendChild(opt);
+        });
+
+        calculatePumbility();
+    };
+
+    function calculatePumbility() {
+        const mode = document.getElementById("mode").value;
+        const levelKey = document.getElementById("level").value;
+        const inputScore = parseFloat(document.getElementById("score").value);
+        let rankKey = document.getElementById("rank").value;
+        const plateKey = document.getElementById("plate").value;
+
+        // If numerical score is entered, infer Rank automatically
+        if (!isNaN(inputScore)) {
+            for (let i = grades.length - 1; i >= 0; i--) {
+                if (inputScore >= grades[i].minScore) {
+                    rankKey = grades[i].rank;
+                    document.getElementById("rank").value = rankKey;
+                    break;
+                }
+            }
+        }
+
+        const L = levels[levelKey][mode];
+        const gradeObj = grades.find(g => g.rank === rankKey);
+        const G = gradeObj ? gradeObj[mode] : 0;
+        const P = plates[plateKey][mode];
+
+        if (L === 0) {
+            document.getElementById("result").innerText = "Invalid Mode";
+            return;
+        }
+
+        // Pumbility Calculation & Truncate to 2 Decimals
+        const rawScore = L + (L * (G + P) / 4.5);
+        const finalScore = (Math.floor(rawScore * 100) / 100).toFixed(2);
+
+        document.getElementById("result").innerText = finalScore;
+    }
+</script>
+
+</body>
+</html>
